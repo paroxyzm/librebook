@@ -1,0 +1,9 @@
+extends ../layout
+
+block content
+    h1.
+      #{title}
+    form(action="/books/new" method="post")
+      input(id="title" type="text", placeholder="title" name="title")
+      input(id="qty" type="number", placeholder="quantity" name="qty")
+      button(id="submit" type="submit" value="Submit") Submit
