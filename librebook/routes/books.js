@@ -42,7 +42,66 @@ router.route('/')
             }
         });
     })
-    //POST a new book
+// route middleware to validate :id
+router.param('id', function(req, res, next, id) {
+    //console.log('validating ' + id + ' exists');
+    //find the ID in the Database
+    mongoose.model('Book').findById(id, function (err, book) {
+        //if it isn't found, we are going to repond with 404
+        if (err) {
+            console.log(id + ' was not found');
+            res.status(404)
+            var err = new Error('Not Found');
+            err.status = 404;
+            res.format({
+                html: function(){
+                    next(err);
+                 },
+                json: function(){
+                       res.json({message : err.status  + ' ' + err});
+                 }
+            });
+        //if it is found we continue on
+        } else {
+
+            console.log('ELSE');
+
+            //uncomment this next line if you want to see every JSON document response for every GET/PUT/DELETE call
+            //console.log(book);
+            // once validation is done save the new item in the req
+            req.id = id;
+            // go to the next thing
+            next();
+        }
+    });
+});
+//POST a new book
+router.route('/:id')
+    .get(function (req, res) {
+        console.log("req.id:", req.id);
+        mongoose.model('Book').findById(req.id, function (err, book) {
+            console.log("book._id:", book._id);
+
+            if(err){
+                console.log('There was a problem retrieving book ' + book._id);
+            } else {
+                console.log("GET retrieving ID:" + book._id);
+                res.format({
+                    html: function() {
+                        res.render('books/show', {
+                            'book': book
+                        })
+                    },
+                    json: function(){
+                        res.json(book)
+                    }
+                })
+            }
+
+            console.log("book:", book);
+        })
+
+    })
 
 router.route('/new')
     .get(function (req, res) {
